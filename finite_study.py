@@ -26,7 +26,7 @@ from intervals import sharp_radius, support
 from replay import compare
 
 SEED = 20261124
-POLICIES = ("greedy","proportional","balanced","top4")
+POLICIES = ("greedy","proportional","balanced","top4","mean_info")
 REF = Path("results/finite")
 SCENES = {
     "Indian_pines": ("https://raw.githubusercontent.com/ZhangQuan-hub/HyperspectralDatasets/main/Indian_pines_corrected.mat",
@@ -63,7 +63,9 @@ def save(folder,name,rows):
 def summary(y, pred, half, modulus2):
     return dict(queries=len(y), half50=np.median(half), half90=np.quantile(half,.9),
                 coverage=np.mean(abs(y-pred)<=half), rmse=np.sqrt(np.mean((y-pred)**2)),
-                mean_modulus2=np.mean(modulus2))
+                mean_modulus2=np.mean(modulus2), marginal_coverage=np.mean(abs(y)<=-ndtri(.025)),
+                plugin_coverage=np.mean(abs(y-pred)<=-ndtri(.025)),
+                interval_score=np.mean(2*half+40*np.maximum(0,abs(y-pred)-half)))
 
 
 def limits(rng):
@@ -184,14 +186,55 @@ def scenes(paths,rng):
     return rows
 
 
+def batch_study(rng):
+    """One archive per known query batch, with identical paired objects for all policies."""
+    rows=[]
+    p=64
+    u=np.full(p,.8/np.sqrt(p))
+    for m in [1,4,16,64]:
+        for n in [64,256,1024]:
+            for rep in range(32):
+                g=rng.normal(size=(m,p))
+                x=rng.normal(size=(n,p))
+                t=x@u+.6*rng.normal(size=n)
+                y=g@u+.6*rng.normal(size=m)
+                _,singular,vt=np.linalg.svd(g,full_matrices=False)
+                # Normalize weights by a common factor; allocation comparisons are invariant.
+                scale=singular/singular.max()
+                for policy in ["batch","batch_mean_info","reusable","first_query"]:
+                    if policy.startswith("batch"):
+                        basis=vt
+                        idx=allocate(scale,n,"greedy" if policy=="batch" else "mean_info")
+                    elif policy=="first_query":
+                        basis=g[:1]/np.linalg.norm(g[0])
+                        idx=np.zeros(n,dtype=int)
+                    else:
+                        basis=np.eye(p)
+                        idx=np.resize(rng.permutation(p),n)
+                    coordinates=g@basis.T
+                    missing=np.sum((g-coordinates@basis)**2,axis=1)
+                    scores=np.sum(x*basis[idx],axis=1)
+                    energy=np.bincount(idx,weights=scores**2,minlength=len(basis))
+                    sums=np.bincount(idx,weights=t*scores,minlength=len(basis))
+                    r=coordinates/(1+energy)
+                    bias2=np.sum(r*r,axis=1)+missing
+                    var=(r*r)@energy
+                    pred=r@sums
+                    half=folded_radius(np.sqrt(bias2),np.sqrt(1+var))
+                    rows.append(dict(batch=m,budget=n,rep=rep,policy=policy,
+                                     rms_half=np.sqrt(np.mean(half**2)),**summary(y,pred,half,bias2+var)))
+    return rows
+
+
 def run(out,paths):
     out.mkdir(parents=True,exist_ok=True)
     rng=np.random.SeedSequence(SEED)
-    streams=[np.random.default_rng(s) for s in rng.spawn(3)]
+    streams=[np.random.default_rng(s) for s in rng.spawn(4)]
     save(out,"tail_comparison",tails())
     save(out,"dimension",limits(streams[0]))
     save(out,"camera",camera(streams[1]))
     save(out,"scenes",scenes(paths,streams[2]))
+    save(out,"batches",batch_study(streams[3]))
     files=["finite_protocol.md","finite_design.py","finite_study.py","test_finite.py",
            "study.py","intervals.py","requirements.txt","replay.py"]
     record=dict(python=platform.python_version(),numpy=np.__version__,scipy=scipy.__version__,

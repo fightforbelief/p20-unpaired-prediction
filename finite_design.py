@@ -25,8 +25,15 @@ def allocate(gains, budget, policy="greedy", order=None, reliability=None):
     c = np.ones_like(d) if reliability is None else np.asarray(reliability, dtype=float)
     if c.shape != d.shape or not np.isfinite(c).all() or np.any((c<0)|(c>1)):
         raise ValueError("invalid score reliabilities")
-    if policy == "greedy":
-        heap = [(-weight**2 * marginal_drop(0,float(c[i])),i) for i,weight in enumerate(d)]
+    if policy in {"greedy", "mean_info"}:
+        def benefit(i,n):
+            if policy == "greedy":
+                drop = marginal_drop(n,float(c[i]))
+            else:
+                c2 = c[i]**2
+                drop = c2/((1+n*c2)*(1+(n+1)*c2))
+            return d[i]**2 * drop
+        heap = [(-benefit(i,0),i) for i in range(len(d))]
         heapq.heapify(heap)
         counts = np.zeros(len(d), dtype=int)
         sequence = []
@@ -34,7 +41,7 @@ def allocate(gains, budget, policy="greedy", order=None, reliability=None):
             _, i = heapq.heappop(heap)
             counts[i] += 1
             sequence.append(i)
-            heapq.heappush(heap, (-d[i]**2 * marginal_drop(int(counts[i]),float(c[i])),i))
+            heapq.heappush(heap, (-benefit(i,int(counts[i])),i))
         return np.asarray(sequence, dtype=int)
     if policy == "top4":
         return np.resize(np.argsort(-d,kind="stable")[:4],budget)
