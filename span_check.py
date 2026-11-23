@@ -9,7 +9,7 @@ from scipy.linalg import hadamard
 from finite_design import allocate, predict_axes
 from replay import compare
 
-OUT = Path("results/span_comparison.csv")
+OUT = Path("results/span/comparison.csv")
 
 
 def evaluate(path):
@@ -55,4 +55,5 @@ if __name__=="__main__":
         compare(OUT,replay)
         print("span control replay verified")
     else:
+        OUT.parent.mkdir(parents=True,exist_ok=True)
         evaluate(OUT)
