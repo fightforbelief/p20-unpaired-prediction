@@ -2,6 +2,9 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm,booktabs,graphicx}
 \usepackage[hidelinks]{hyperref}
+\makeatletter
+\let\inputrows\@@input
+\makeatother
 \newtheorem{theorem}{Theorem}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{corollary}[theorem]{Corollary}
@@ -12,29 +15,31 @@
 \newcommand{\tr}{\operatorname{tr}}
 \newcommand{\diag}{\operatorname{diag}}
 \newcommand{\Var}{\operatorname{Var}}
-\title{Sharp conditional prediction from unpaired Gaussian measurements}
+\title{How many paired measurements does conditional prediction require?}
 \author{Yunjie Guo \and Hanqing Yang\thanks{Corresponding author: \texttt{hanqing.yang189@gmail.com}. Affiliation of both authors: Independent Researcher, Suzhou, China.}}
 \date{}
 \begin{document}
 \maketitle
 \begin{abstract}
-An archive of one sensing modality and an independent archive of a missing response can identify both Gaussian marginals while leaving their coupling unknown. How wide must an interval be to cover the response conditional on a particular noisy measurement? We derive the shortest interval valid for every compatible Gaussian law and compute it by scalar optimization with an attainable lower bound. Its half-length grows as the square root of the effective dimension of the visible channel. If paired calibration identifies a fixed number of linear scores, the leading singular directions minimize every worst-case width quantile. If a score can instead be chosen for the current observation, regression on one direction suffices. Upper and lower bounds show that its finite-calibration cost scales as the norm of the posterior mean of the visible field divided by the square root of the score energy. Eight measured camera-shake kernels illustrate the distinction between knowing a forward operator and knowing its coupling to an unseen target.
+A sensor archive and a separate archive of scalar targets identify two Gaussian marginals while leaving their dependence undetermined. Suppose each new calibration object supplies the target and one linear instrument reading. How many such objects suffice for conditional prediction? We characterize minimax interval length up to constants for every realized archive of scores and every deployment query. For a reusable design this yields a spectral allocation problem. An integer allocation attains the optimal order against arbitrary preassigned linear directions. With unit sensor gain in $p$ dimensions, keeping the average pointwise minimax length bounded requires order $p^2$ calibration objects for a reusable archive and order $p$ for an archive acquired for one known query. We also give the exact shortest interval without pairs and a one-tail approximation with a computable error bound. For 16 Gaussian queries in 64 dimensions sharing 256 pairs, tailoring the directions to the batch reduces the mean root mean squared half-width from 8.25 to 4.39 target standard deviations. Beyond simulations with eight measured blur operators, 95\% intervals trained on spatially separate strips achieve 97.0\% and 56.8\% empirical coverage on two airborne spectral images at 256 pairs. This variation limits transfer of the model-based coverage guarantee.
 \end{abstract}
 
 \section{A missing channel}
 Consider two archives of the same population of objects. A visible field was acquired in the first archive. A scalar feature of another channel, such as a coefficient in an unobserved band, was acquired in the second. At deployment a sensor returns a noisy linear measurement of the visible field. The question is how precisely one can predict the feature for this particular object. Even perfect knowledge of each archive's distribution leaves the dependence between the two fields open. A joint prior chosen by a learning procedure makes one such dependence assumption. Its posterior may be much narrower than the range supported by the archives.
 
-Incomplete-measurement learning has been studied through identifiability of signal models under multiple sensing operators \cite{tachella}. Statistical matching describes the feasible Gaussian completions of unpaired data and draws inferences about their parameters \cite{ahfock}. Chernozhukov, W\"uthrich and Zhu \cite{cwz} take the union of conditional prediction intervals over a plausible set of Gaussian copulas. Their scalar example supplies a direct benchmark for this paper. Folded-normal critical values also occur in inference with bounded bias \cite{ak}. Our problem couples the feasible bias and conditional variance through the same latent correlation vector. Optimizing the two tails jointly gives a shorter interval than the equal-tail union can generally provide. We quantify that difference as well as the usually larger effect of acquiring paired information.
+A laboratory might take one extra scalar reading on each object sent for a target assay. It can decide in advance which direction each instrument should record, or it can choose a direction for an object of immediate interest and then collect calibration pairs. For a Gaussian field with $p$ unit-gain coordinates, the first option must spend order $p^2$ pairs to keep its average pointwise minimax width bounded. The second spends order $p$ per query. Section~\ref{sec:finite} derives the general spectral law and gives a discrete allocation with a finite-budget guarantee. The proof compares all preassigned unit linear directions, including oblique ones. For weakly visible fields it is the spectrum of the sensor that determines the cost.
+
+Azizyan, Krishnamurthy and Singh establish minimax bounds for estimating a full covariance matrix from random projections of each object \cite{compressive}. Our calibration object supplies a projected field and a separate target, and the loss is conditional prediction length for that target. Incomplete-measurement learning has been studied through identifiability of signal models under multiple sensing operators \cite{tachella}. Statistical matching describes the feasible Gaussian completions of unpaired data and draws inferences about their parameters \cite{ahfock}. Chernozhukov, W\"uthrich and Zhu \cite{cwz} take the union of conditional prediction intervals over a plausible set of Gaussian copulas. Their scalar example supplies a direct benchmark for this paper. Folded-normal critical values also occur in inference with bounded bias \cite{ak}. Gaussian two-sided chance constraints have a convex representation. The robust formulation of Lubin et al.\ \cite{lubin} treats separable mean and covariance uncertainty in their tractability lemma. Our problem couples the feasible bias and conditional variance through the same latent correlation vector. Optimizing the two tails jointly gives a shorter interval than the equal-tail union can generally provide. We quantify that difference as well as the usually larger effect of acquiring paired information.
 
 We study deterministic intervals, a scalar target and pointwise coverage over a specified class of jointly Gaussian populations. Population marginals and noise parameters are given. This isolates ambiguity that would persist with arbitrarily large unpaired archives. The prediction target can also be the residual of a missing linear functional after subtracting an identified contribution. When the target is a known functional of the visible field, its coupling is already specified. The usual Gaussian inverse problem then gives the conditional law directly.
 
-\section{The shortest interval}
+\section{Measurement model and coverage}
 Let the whitened latent field $X\sim N(0,I_p)$ and target $T\sim N(0,1)$ have unknown joint Gaussian law. Write
 \begin{equation}
  T=u^\top X+\sqrt{1-\norm{u}^2}\,Z,\qquad \norm{u}\le1,\quad Z\sim N(0,1)
  \label{eq:model}
 \end{equation}
-with independent $Z$. Positive semidefiniteness of the joint covariance is equivalent to this unit-ball constraint, and every vector in the ball induces the same two marginal laws. Singular completions are included by continuity. For a visible signal with known covariance and colored noise, first multiply the forward operator by the signal covariance square root on the right and whiten the noise on the left. In its right singular basis, let $s_i$ be the singular values. Standardizing each left singular coordinate of the observation gives $W\sim N(0,I)$ with $\operatorname{Cov}(X,W)=D=\diag(d_i)$ and $d_i=s_i/\sqrt{1+s_i^2}$. We pad null directions with independent noise coordinates if necessary. Unit gains also allow noiseless observations. For $W=w$ define $g=Dw$ and $M=\norm{g}$. In particular $g=\E[X\mid W=w]$. Gaussian conditioning gives
+with independent $Z$. Positive semidefiniteness of the joint covariance is equivalent to this unit-ball constraint, and every vector in the ball induces the same two marginal laws. Singular completions are included by continuity. For a visible signal with known covariance and colored noise, first multiply the forward operator by the signal covariance square root on the right and whiten the noise on the left. In its right singular basis, let $s_i$ be the singular values. Standardizing each left singular coordinate of the observation gives $W\sim N(0,I)$ with $\operatorname{Cov}(X,W)=D=\diag(d_i)$ and $d_i=s_i/\sqrt{1+s_i^2}$. We pad null directions with independent noise coordinates if necessary. Explicitly $W=DX+(I-D^2)^{1/2}\epsilon$ with standard Gaussian $\epsilon$ independent of $(X,T)$. Unit gains allow noiseless observations. For $W=w$ define $g=Dw$ and $M=\norm{g}$. In particular $g=\E[X\mid W=w]$. Gaussian conditioning gives
 \begin{equation}
  T\mid W=w,u\ \sim\ N(u^\top g,\,1-\norm{Du}^2).
  \label{eq:conditional}
@@ -43,6 +48,11 @@ Regression on any common, fully observed Gaussian covariates reduces to this mod
 
 Fix $0<\alpha<1/2$, $z=\Phi^{-1}(1-\alpha/2)$ and $z_1=\Phi^{-1}(1-\alpha)$. Let $F(m,s)$ be the $(1-\alpha)$ quantile of $|m+sZ|$ for $m,s\ge0$. At $s=0$, $F(m,0)=m$. We require $\Prob_u(T\in I(w)\mid W=w)\ge1-\alpha$ for every $u$ at each $w$, using the Gaussian conditional kernel in \eqref{eq:conditional}.
 
+We first ask how much new information can be acquired at a given budget. We then return to the exact interval available when no paired archive exists. The folded quantile $F$ is nondecreasing in its two nonnegative arguments at the levels considered here, as shown in the proof of Theorem~\ref{thm:sharp}.
+
+\input{finite}
+
+\section{Exact interval with unpaired archives}
 \begin{theorem}[Sharp radius and scalar dual]\label{thm:sharp}
 A shortest interval is $[-H,H]$, where
 \begin{equation}
@@ -73,6 +83,14 @@ For equality put $B_i=\lambda+(1-\lambda)d_i^2$ and let $L$ be the square root o
 \paragraph{Computing an interval and its witness.}
 The dual objective is convex in $\lambda$. Its derivative gives either the left endpoint or a scalar root. An outer subinterval $[a_0,a_1]$ has upper bound $L(a_1,k(a_0))$ since $L$ is increasing in each coefficient. Evaluating feasible $u$ at a tangent gives a lower bound directly from \eqref{eq:radius}. Bisect the subinterval with the largest upper bound until the gap is within tolerance. Continuity on the compact slope interval implies termination at any positive tolerance in exact arithmetic. This construction requires sums in singular coordinates and scalar root searches. The implementation uses double precision and returns both endpoints and the witness. For a single noiseless coordinate the equal-tail union is $\sqrt{w^2+z^2}$. At $w=0$ the sharp answer is $z$. For $g\ne0$ and $d_i<1$ for all $i$, the union is strictly wider. Indeed its radius exceeds $z$ by taking a small step from zero along $g$. At a maximizer of the sharp radius, either the mean is zero and the radius is at most $z$, or the mean is positive and its folded quantile is strictly below the equal-tail endpoint $m+zs$.
 
+\paragraph{A single-support comparison.}
+Let $B_0=\max\{z,L(1,z_1)\}$ and let $\phi$ be the standard normal density. A simpler bracket, using one support evaluation, is
+\begin{equation}
+ B_0\le H\le B_0+\Phi(-B_0)/\phi(z).
+ \label{eq:tail}
+\end{equation}
+Indeed, requiring each tail to have probability at most $\alpha$ gives $H\ge m+z_1s$ for every feasible absolute mean $m$ and standard deviation $s$. Set $\eta=\Phi(-B_0)\le\alpha/2$. Moving the normal quantile from $1-\alpha$ to $1-\alpha+\eta$ costs at most $\eta/\phi(z)$ by the mean value theorem. Since $s\le1$, the upper endpoint in \eqref{eq:tail} spends at most $\alpha-\eta$ on the near tail and at most $\eta$ on the far tail. The minimum of this upper bound and the equal-tail union is also valid. The exact formula can improve the most when the observation leaves appreciable mass in both tails; Appendix~\ref{app:bench} checks that regime.
+
 \begin{corollary}[Effective dimension]\label{cor:dimension}
 For $m_D=\tr D^2$,
 \[
@@ -86,7 +104,7 @@ Use $u=0$ and, for $M>0$, $u=g/M$ in \eqref{eq:radius}. Since $1-\alpha>1/2$, $F
 \end{proof}
 The constant interval $[-z,z]$ has precisely the requested coverage after averaging over $W$ for each fixed completion. The dimension cost comes from protecting each observed $w$ against every compatible direction. The witness can differ across $w$ because each candidate interval must pass all of these pointwise tests.
 
-\section{Which measurements should be paired?}
+\section{Benchmarks with identified projections and a single query}
 Suppose a calibration study can measure the target and $k$ linear scores of the whitened latent field on the same object. These scores require access to the specified projections in calibration. A noisy deployment image alone does not provide them. A fixed design collects scores for many future objects. A query-specific design chooses one score after seeing the current measurement.
 
 \subsection{Fixed projections}
@@ -104,7 +122,7 @@ Every projector must allow $b=0$. Write $B$ for an orthonormal basis matrix of i
 
 For $P_*$ the zero-calibration case has exactly the trailing spectrum. At any other $b$, center the interval at $b^\top g$. Relative to this center the mean is $v^\top g$, the feasible ball for $v$ shrinks and the variance is $1-\norm{Db}^2-\norm{Dv}^2$ by orthogonality in the singular basis. Monotonicity of $F$ makes the zero-calibration half-length feasible throughout. This proves attainment. Taking the trace of the compression gives the mean-range claim.
 \end{proof}
-Leading singular subspaces also optimize approximations of Gaussian posteriors for a specified prior \cite{spantini}. Here the design controls all worst-case width quantiles over unknown couplings. A new paired direction contributes little if many equally informative orthogonal directions remain. In the unit-gain case $k$ fixed scores leave a typical half-length of order $\sqrt{p-k}$ whenever $p-k$ diverges.
+Classical Gaussian optimal-information theory studies the best linear observations for average and probabilistic approximation criteria \cite{wasilkowski}. Leading singular subspaces also optimize approximations of Gaussian posteriors for a specified prior \cite{spantini}. Here the design controls all worst-case width quantiles over unknown couplings. A new paired direction contributes little if many equally informative orthogonal directions remain. In the unit-gain case $k$ fixed scores leave a typical half-length of order $\sqrt{p-k}$ whenever $p-k$ diverges.
 
 \subsection{A projection chosen for one observation}
 For $M>0$ take $q=g/M$. Learning $q^\top u$ identifies the mean in \eqref{eq:conditional}. Only $\pm q$ achieves this for all couplings using one unit direction. Any component of $g$ orthogonal to the calibration direction leaves two opposite couplings with identical calibration and different conditional means. Given $q^\top u$, a half-length of $z$ around the identified mean suffices. For $M=0$ the unpaired interval already has that width.
@@ -136,62 +154,39 @@ At $u=0$ the new target is standard normal independently of calibration. A rando
 \end{proof}
 Here $E\sim\chi^2_n$ and $M^2$ has mean $m_D$. As $m_D$ and $n$ diverge, both concentrate relative to their means. A bounded minimax expected length at typical scores and queries requires $n$ of order $m_D$ or larger. One \emph{type} of paired measurement resolves the mean ambiguity. Estimating its covariance can require many paired objects. This design uses fresh calibrators or existing independent paired fields from which the chosen score can be extracted. An archive of one previously chosen projection provides a different experiment.
 
-\section{Measured operators and Gaussian queries}
+\section{Equal-budget comparisons on simulated and measured queries}\label{sec:numerics}
 We use all eight blur kernels from Levin et al.\ \cite{levin}, obtained from Bouman's laboratory materials \cite{bouman}. Each defines periodic convolution on a $32\times32$ visible field. The target is a standardized coefficient of a second, unmeasured channel. The study combines measured blur weights, specified field spectra and simulated queries. This permits a check of the radius and its coverage against a known family of compatible populations.
 
-For Fourier indices $j,l$ put $A_{jl}=\sin^2(\pi j/32)+\sin^2(\pi l/32)$. The smooth field has spectral variance $(1+64A_{jl})^{-1}$ and the white field has variance one. Multiplying its spectral standard deviations by the modulus of the kernel transform and dividing by the noise standard deviation gives the noise-whitened singular values. A real sine--cosine basis counts each conjugate pair twice, giving 1,024 real coordinates. We use noise levels 0.05, 0.2 and 0.8. At the primary smooth setting with noise 0.2 we use the same 16 seeded standard normal test vectors in descending gain order for each kernel. Reuse facilitates paired comparisons and induces dependence across kernels. All intervals have nominal coverage 95\%. Half-lengths are in target standard deviations.
+For Fourier indices $j,l$ put $A_{jl}=\sin^2(\pi j/32)+\sin^2(\pi l/32)$. The smooth field has spectral variance $(1+64A_{jl})^{-1}$ and the white field has variance one. Multiplying its spectral standard deviations by the modulus of the kernel transform and dividing by the noise standard deviation gives the noise-whitened singular values. A real sine--cosine basis counts each conjugate pair twice, giving 1,024 real coordinates. We use noise levels 0.05, 0.2 and 0.8. For the unpaired benchmark in Appendix~\ref{app:bench}, at the primary smooth setting with noise 0.2 we use the same 16 seeded standard normal test vectors in descending gain order for each kernel. Reuse facilitates paired comparisons and induces dependence across kernels. All intervals have nominal coverage 95\%. Half-lengths are in target standard deviations.
 
-\begin{table}[ht]
-\centering
-\caption{Information and uncertainty by measured kernel. The traces give the expected squared half-range of compatible means before and after learning 32 leading paired projections at zero revealed covariance. $M$, sharp and equal-tail union radii are medians across 16 observations.}
-\begin{tabular}{crrrrr}
-\toprule
-Kernel & $m_D$ & Trailing trace & $M$ & Sharp & Union \\
-\midrule
-1 &41.99&20.89&6.490&7.795&8.054\\
-2 &36.41&16.24&6.016&7.274&7.525\\
-3 &41.31&17.34&6.273&7.451&7.686\\
-4 &31.45&15.33&5.687&7.012&7.274\\
-5 &54.09&30.25&7.235&8.489&8.736\\
-6 &48.46&26.60&6.879&8.182&8.439\\
-7 &42.53&24.12&6.438&7.770&8.030\\
-8 &35.07&18.04&5.880&7.198&7.458\\
-\bottomrule
-\end{tabular}\label{tab:kernels}
-\end{table}
-Across the 128 observations the upper endpoints of the sharp numerical brackets reduce the union half-length by 2.38--4.33\%. Absolute bracket widths are below 0.0005. At the returned feasible witnesses the upper radii give conditional Gaussian coverage of 0.95004 to five decimal places. Each witness concerns its own query. Tail allocation brings a modest gain here. Paired data address the main source of width. For kernel 1, learning 32 leading directions cuts worst expected squared mean ambiguity from 41.99 to 20.89. Thirty-two uniformly random orthogonal scores leave 40.68 on average by rotational symmetry.
-
-For the smooth field, reducing noise to 0.05 gives effective dimensions from 155.87 to 219.71 across kernels. Raising noise to 0.8 gives 4.30 to 9.28. For white fields the ranges at noise 0.05, 0.2 and 0.8 are 679.03--837.61, 253.18--389.72 and 38.86--63.52. Greater visibility expands the possible conditional means of the missing target when the direction linking the channels is unknown. The visible field itself is better determined by a more informative sensor.
-
-\begin{table}[ht]
-\centering
-\caption{Query-specific pairing for kernel 1, first observation ($M=7.445$). Each sample size and coupling uses 50,000 independent conditional trials. Adjusted intervals use \eqref{eq:paired}. Plug-in intervals ignore calibration error and use half-length $z$. The median adjusted half-length is reported at $u=0$.}
-\begin{tabular}{rrrrrr}
-\toprule
-& & \multicolumn{3}{c}{Adjusted coverage (\%)} & Plug-in (\%)\\
-\cmidrule(lr){3-5}
-$n$ & Median half-length & $u=0$ & $u=.5q$ & $u=.95q$ & $u=0$\\
-\midrule
-4   & 8.204 &94.95&97.75&100.00&36.51\\
-16  & 4.214 &94.91&97.28&100.00&63.02\\
-64  & 2.683 &95.05&96.89&99.88&84.47\\
-256 & 2.162 &94.99&96.60&99.45&92.39\\
-\bottomrule
-\end{tabular}\label{tab:paired}
-\end{table}
-For this first query the unpaired radius is between 8.6840 and 8.6844. Independent calibration responses and target draws were generated using their conditional normal laws at three fixed couplings. Rounding to 100\% can hide rare misses (two in 50,000 at $n=16$, $u=.95q$). At zero coupling the Monte Carlo standard error is about 0.10 percentage points. The finite-calibration correction matters even at $n=256$. At other couplings it can be conservative because both variance terms in the proof of Theorem~\ref{thm:query} can shrink.
+\input{finite_results}
 
 \section{Scope}
 The population interval quantifies uncertainty left by two unpaired marginals under joint Gaussianity. Covariances, means and sensor noise used in whitening must be known for the stated guarantees. Estimating marginal parameters adds uncertainty. Restrictions on the cross-covariance, including a known sign or locality pattern, could narrow the interval. Conversely, Gaussian marginal histograms alone give little protection. For a scalar noiseless observation, take $T=\Phi^{-1}(\pi(\Phi(W)))$ with $\pi$ a measure-preserving permutation of the unit interval. Exchanging an interior probability interval with an equal-length interval near one preserves both marginals and can move targets outside a Gaussian conditional interval on a set of positive probability. Conditional calibration under non-Gaussian dependence would need additional information.
 
-The fixed design assumes population knowledge of paired scores. Its optimality gives a benchmark for reusable acquisition. The finite-sample theorem concerns a single query and exact calibration scores. Extending it to a finite noisy archive optimized for many test objects is an open design problem. The kernels illustrate the role of the spectrum. Assessing coverage for natural images requires paired validation in the intended application.
+The exact fixed-subspace result concerns known calibration covariances. The finite-archive guarantees average over calibration responses at fixed readings and test query. They permit known Gaussian measurement noise and preset instruments, including query-informed choices made before collection. Simultaneous coverage for all future objects after seeing all labels, or instrument selection driven by previous labels, would require a different analysis. The spectral allocation optimizes expected squared information radius in its eigenaxis catalogue. Matching constants for the shortest finite-archive prediction interval under general oblique designs remain open.
 
 \paragraph{Reproducibility.}
 Code, experimental protocol, input digest and numerical results accompany the article at \url{https://github.com/fightforbelief/p20-unpaired-prediction}. The implementation uses Python, NumPy and SciPy.
 \paragraph{Declarations.}
 The authors received no specific funding for this work and declare no competing interests.
 
-\begin{thebibliography}{9}
+\appendix
+\section{Unpaired and single-query benchmarks}\label{app:bench}
+\input{benchmarks}
+
+\begin{thebibliography}{99}
+\bibitem{compressive} M. Azizyan, A. Krishnamurthy and A. Singh. Extreme compressive sampling for covariance estimation. \emph{IEEE Transactions on Information Theory} 64 (2018). \href{https://arxiv.org/abs/1506.00898}{arXiv:1506.00898}.
+\bibitem{transductive} K. Yu, J. Bi and V. Tresp. Active learning via transductive experimental design. \emph{Proceedings of ICML} (2006), 1081--1088. \href{https://doi.org/10.1145/1143844.1143980}{doi:10.1145/1143844.1143980}.
+\bibitem{elfving} G. Elfving. Optimum allocation in linear regression theory. \emph{Annals of Mathematical Statistics} 23 (1952), 255--262. \href{https://doi.org/10.1214/aoms/1177729442}{doi:10.1214/aoms/1177729442}.
+\bibitem{wasilkowski} G. W. Wasilkowski. Optimal algorithms for linear problems with Gaussian measures. \emph{Rocky Mountain Journal of Mathematics} 16 (1986). \href{https://scholars.uky.edu/en/publications/optimal-algorithms-for-linear-problems-with-gaussian-measures/}{Author record}.
+\bibitem{greedy} A. Federgruen and H. Groenevelt. The greedy procedure for resource allocation problems: Necessary and sufficient conditions for optimality. \emph{Operations Research} 34 (1986), 909--918. \href{https://business.columbia.edu/sites/default/files-efs/pubfiles/4071/federgruen_greedy_procedure.pdf}{Author copy}.
+\bibitem{donoho} D. L. Donoho. Statistical estimation and optimal recovery. \emph{Annals of Statistics} 22 (1994), 238--270. \href{https://web.stanford.edu/dept/statistics/cgi-bin/donoho/wp-content/uploads/2018/08/SEOR.pdf}{Author copy}.
+\bibitem{lubin} M. Lubin, D. Bienstock and J. P. Vielma. Two-sided linear chance constraints and extensions. \href{https://arxiv.org/abs/1507.01995}{arXiv:1507.01995}.
+\bibitem{budgetlearn} D. Kukliansky and O. Shamir. Attribute efficient linear regression with distribution-dependent sampling. \emph{Proceedings of ICML} 37 (2015), 153--161. \url{https://proceedings.mlr.press/v37/kukliansky15.html}.
+\bibitem{aoptimal} A. Alexanderian, N. Petra, G. Stadler and O. Ghattas. A-optimal design of experiments for infinite-dimensional Bayesian linear inverse problems with regularized $\ell_0$-sparsification. \href{https://arxiv.org/abs/1308.4084}{arXiv:1308.4084}.
+\bibitem{scenes} Grupo de Inteligencia Computacional. Hyperspectral remote sensing scenes. Corrected AVIRIS Indian Pines and Salinas image cubes. \href{https://www.ehu.eus/ccwintco/index.php/Hyperspectral_Remote_Sensing_Scenes}{Dataset catalogue}.
+
 \bibitem{ahfock} D. Ahfock, S. Pyne, S. X. Lee and G. J. McLachlan. Partial identification in the statistical matching problem. \emph{Computational Statistics \& Data Analysis} 104 (2016), 79--90. \href{https://doi.org/10.1016/j.csda.2016.06.005}{doi:10.1016/j.csda.2016.06.005}.
 \bibitem{ak} T. B. Armstrong and M. Koles\'ar. Simple and honest confidence intervals in nonparametric regression. \emph{Quantitative Economics} 11 (2020), 1--39. \href{https://doi.org/10.3982/QE1199}{doi:10.3982/QE1199}.
 \bibitem{bouman} C. A. Bouman. Linear Forward Models and MAP Reconstruction. Graduate laboratory materials, Lab 3. \url{https://cabouman.github.io/grad_labs/labs-60141/lab3/index.html}.

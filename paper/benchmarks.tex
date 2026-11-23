@@ -1,0 +1,42 @@
+\begin{table}[ht]
+\centering
+\caption{Information and uncertainty by measured kernel. The traces give the expected squared half-range of compatible means before and after learning 32 leading paired projections at zero revealed covariance. $M$, sharp and equal-tail union radii are medians across 16 observations.}
+\begin{tabular}{crrrrr}
+\toprule
+Kernel & $m_D$ & Trailing trace & $M$ & Sharp & Union \\
+\midrule
+1 &41.99&20.89&6.490&7.795&8.054\\
+2 &36.41&16.24&6.016&7.274&7.525\\
+3 &41.31&17.34&6.273&7.451&7.686\\
+4 &31.45&15.33&5.687&7.012&7.274\\
+5 &54.09&30.25&7.235&8.489&8.736\\
+6 &48.46&26.60&6.879&8.182&8.439\\
+7 &42.53&24.12&6.438&7.770&8.030\\
+8 &35.07&18.04&5.880&7.198&7.458\\
+\bottomrule
+\end{tabular}\label{tab:kernels}
+\end{table}
+Across the 128 observations the upper endpoints of the sharp numerical brackets reduce the union half-length by 2.38--4.33\%. Absolute bracket widths are below 0.0005. At the returned feasible witnesses the upper radii give conditional Gaussian coverage of 0.95004 to five decimal places. Each witness concerns its own query. The equal-tail comparison measures the cost of its tail allocation. On these same 128 queries, $B_0$ ranges from 6.279 to 9.559 and the maximum excess half-width bound in \eqref{eq:tail} is $2.92\times10^{-9}$ standard deviations. A separate implementation recomputed the inner support and checked a feasible lower witness. At this signal strength the single-support bound captures essentially the full gain. Paired data address the main source of width. For kernel 1, learning 32 leading directions cuts worst expected squared mean ambiguity from 41.99 to 20.89. Thirty-two uniformly random orthogonal scores leave 40.68 on average by rotational symmetry.
+
+For the smooth field, reducing noise to 0.05 gives effective dimensions from 155.87 to 219.71 across kernels. Raising noise to 0.8 gives 4.30 to 9.28. For white fields the ranges at noise 0.05, 0.2 and 0.8 are 679.03--837.61, 253.18--389.72 and 38.86--63.52. Greater visibility expands the possible conditional means of the missing target when the direction linking the channels is unknown. The visible field itself is better determined by a more informative sensor.
+
+\begin{table}[ht]
+\centering
+\caption{Query-specific pairing for kernel 1, first observation ($M=7.445$). Each sample size and coupling uses 50,000 independent conditional trials. Adjusted intervals use \eqref{eq:paired}. Plug-in intervals ignore calibration error and use half-length $z$. The median adjusted half-length is reported at $u=0$.}
+\begin{tabular}{rrrrrr}
+\toprule
+& & \multicolumn{3}{c}{Adjusted coverage (\%)} & Plug-in (\%)\\
+\cmidrule(lr){3-5}
+$n$ & Median half-length & $u=0$ & $u=.5q$ & $u=.95q$ & $u=0$\\
+\midrule
+4   & 8.204 &94.95&97.75&100.00&36.51\\
+16  & 4.214 &94.91&97.28&100.00&63.02\\
+64  & 2.683 &95.05&96.89&99.88&84.47\\
+256 & 2.162 &94.99&96.60&99.45&92.39\\
+\bottomrule
+\end{tabular}\label{tab:paired}
+\end{table}
+For this first query the unpaired radius is between 8.6840 and 8.6844. Independent calibration responses and target draws were generated using their conditional normal laws at three fixed couplings. Rounding to 100\% can hide rare misses (two in 50,000 at $n=16$, $u=.95q$). At zero coupling the Monte Carlo standard error is about 0.10 percentage points. The finite-calibration correction matters even at $n=256$. At other couplings it can be conservative because both variance terms in the proof of Theorem~\ref{thm:query} can shrink.
+
+\subsection{When is the exact two-tail computation useful?}
+To complement the high-signal blur examples, we evaluated scalar gains $d=0.5,1$ at $|w|=0,0.75,1.5,2.25,4,8$. The simple method takes the smaller of the upper bound in \eqref{eq:tail} and the union half-width. At $d=0.5$, $|w|=1.5$, the sharp, simple and equal-tail half-widths were 2.178, 2.428 and 2.447. At $d=1$, $|w|=8$, both the sharp and simple methods gave 8.167 to three decimal places, while the equal-tail union gave 8.237. All twelve cells, including the null observation where the three coincide, are archived. This comparison checks approximation error in regimes that the measured-kernel settings scarcely sample.

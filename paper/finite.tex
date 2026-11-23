@@ -1,0 +1,83 @@
+\section{What can a finite reusable archive buy?}\label{sec:finite}
+Suppose a calibration object supplies its target and one scalar instrument reading. Different objects can be measured in different directions. This section counts objects and scores together: an archive of size $N$ always contains $N$ targets and $N$ scalar readings. In particular an archive containing full vector observations at that price would describe a different experiment.
+
+Object $j$ has an independent copy $(X_j,T_j)$ of \eqref{eq:model}. Its standardized reading is
+\[
+ S_j=c_j q_j^\top X_j+\sqrt{1-c_j^2}\,\xi_j,\qquad
+ \norm{q_j}=1,\quad 0\le c_j\le1 ,
+\]
+with independent standard normal instrument errors. The known reliability $c_j$ may differ across instruments. A reusable design selects all directions before the deployment observation. A query-specific design can select them using $w$. Both select them before observing calibration data; independent randomization is allowed. Conditional on the scores and $w$, the calibration responses are independent with means $(Au)_j$ and variances $1-c_j^2(q_j^\top u)^2$, where row $j$ of $A$ is $c_j S_j q_j^\top$. Thus even the conditional calibration variances depend on the unidentified coupling.
+
+Let $\ell(A,g)$ denote the infimum, over prediction intervals honest for every $\norm u\le1$, of their worst conditional expected length, with the score design understood. The expectation includes calibration responses and the new target; $(S,w)$ and the selected instruments are held fixed. Our design risk averages this \emph{pointwise minimax length} over scores, queries and any design randomization. This order of quantifiers protects each realized query and archive of scores. Marginal coverage alone would permit the constant half-width $z$ with no paired data.
+
+\begin{theorem}[Finite-archive information]\label{thm:archive}
+Set $K=I+A^\top A$ and $R^2=g^\top K^{-1}g$. Uniformly in dimension, score values, query and design,
+\[
+ \ell(A,g)\asymp_\alpha 1+R.
+\]
+An honest interval has center $t^\top T_{\rm cal}$ and half-width
+\begin{equation}
+ F\!\left(\norm{r},\sqrt{1+\norm t^2}\right),\qquad r=K^{-1}g,\quad t=Ar.
+ \label{eq:ridge}
+\end{equation}
+\end{theorem}
+\begin{proof}
+The prediction error at that center has mean $r^\top u$ since $g-A^\top t=r$. Its variance is
+\[
+ 1-\norm{Du}^2+\sum_j t_j^2\{1-c_j^2(q_j^\top u)^2\}\le 1+\norm t^2 .
+\]
+Monotonicity of $F$ proves coverage. The identity $\norm r^2+\norm t^2=R^2$ gives the upper order using $F(m,s)\le m+zs$. This ridge choice also minimizes $\norm{g-A^\top t}^2+\norm t^2$.
+
+For the lower bound let $R>0$ and choose $v=\kappa K^{-1}g/R$. Then $\norm v^2+\norm{Av}^2=\kappa^2$ and $v^\top g=\kappa R$. At $u=\pm v$ the calibration covariance is the same diagonal matrix $\Sigma$ with entries at least $1-\kappa^2$. The total variation distance between the two calibration experiments is $2\Phi(\norm{\Sigma^{-1/2}Av})-1$, at most $2\Phi(\kappa/\sqrt{1-\kappa^2})-1$. Couple the two archives to coincide on their common mass and use identical centered prediction errors for the two targets. As in Theorem~\ref{thm:query}, the same interval must span $2\kappa R$ with probability at least $1-2\alpha$ minus that distance. A sufficiently small fixed $\kappa>0$ makes this probability positive. At $u=0$ Jensen's bound from Theorem~\ref{thm:query} gives expected length at least $2z$, including when $R=0$.
+\end{proof}
+The proof uses the optimal-recovery modulus and two-point reasoning familiar from inference for linear functionals \cite{donoho}. The experiment here has parameter-dependent calibration variances, an additional target draw and a random deployment functional $g$. Its information matrix is observable before opening any calibration labels. This permits a design comparison with the same budget on both sides.
+
+\begin{theorem}[Reusable versus query-specific scalar acquisition]\label{thm:budget}
+Allow all unit directions with exact calibration readings ($c_j=1$). For a reusable design with $N$ objects define
+\begin{equation}
+ V_D(N)=\min_{x_i\ge0,\ \sum_i x_i\le N}\sum_i\frac{d_i^2}{1+x_i}.
+ \label{eq:water}
+\end{equation}
+The infimum of the design risk $\mathbb E\,\ell(A,DW)$ over all reusable designs is of order $1+\sqrt{V_D(N)}$. In contrast, for a query-specific design the optimal risk is of order $1+\mathbb E\norm{DW}/\sqrt{1+N}$. Constants depend only on $\alpha$. If $D=I_p$, the corresponding rates are
+\[
+ 1+\frac{p}{\sqrt{p+N}}\quad\hbox{and}\quad 1+\sqrt{\frac{p}{1+N}}.
+\]
+A bounded risk as $p$ grows requires and suffices to have $N=\Omega(p^2)$ and $N=\Omega(p)$, respectively.
+\end{theorem}
+\begin{proof}
+First fix $g$. The map $K\mapsto\sqrt{g^\top K^{-1}g}$ is convex on positive definite matrices. It is the supremum over $g^\top h\ge0$, $h\ne0$, of $(g^\top h)/\sqrt{h^\top Kh}$. For a reusable design Jensen's inequality over the independent calibration scores and instruments gives $\mathbb E[R\mid g]\ge\sqrt{g^\top(I+J)^{-1}g}$, $J=\mathbb E[A^\top A]$, with $\tr J\le N$. For a standard normal $W$ and positive semidefinite $C$, $\mathbb E\sqrt{W^\top C W}\ge\sqrt{2/\pi}\sqrt{\tr C}$. Diagonalize $C$ and apply concavity of the square root with weights equal to the normalized eigenvalues. Hence the mean radius is at least a constant times $\sqrt{\tr[D^2(I+J)^{-1}]}$. By Cauchy--Schwarz, diagonal element $i$ of $(I+J)^{-1}$ is at least $1/(1+J_{ii})$. This proves the lower bound over arbitrary oblique designs, including less reliable unit instruments.
+
+For achievability take a minimizer $x$ of \eqref{eq:water}, assign $\lfloor x_i\rfloor$ objects to eigenaxis $i$ and distribute any remaining observations. With $n_i$ independent objects along that axis its information is $\chi^2_{n_i}$ (zero if $n_i=0$). Write $v(n)=\mathbb E(1+\chi^2_n)^{-1}$. For $n=\lfloor x\rfloor\le3$, $v(n)\le1\le5/(1+x)$. For $n\ge4$, $v(n)\le\mathbb E[(\chi^2_n)^{-1}]=1/(n-2)\le5/(1+x)$. Consequently $\mathbb E R^2\le5 V_D(N)$; apply Jensen's upper bound and Theorem~\ref{thm:archive}.
+
+For any query-specific design $R\ge\norm g/\sqrt{1+\tr(A^\top A)}$. Conditional on $g$, Jensen's inequality and the budget bound the mean below by $\norm g/\sqrt{1+N}$. Repeating $q=g/\norm g$ gives $R^2=\norm g^2/(1+\chi^2_N)$ and the inverse-moment bound gives the matching order. Take any direction if $g=0$. For $D=I_p$, \eqref{eq:water} has $x_i=N/p$ and $\mathbb E\norm W\asymp\sqrt p$.
+\end{proof}
+The two rates refer to one new query evaluated under the two acquisition rules. A reusable archive serves future queries without further pairs. Applying the query-specific guarantee to many independent queries can require a new archive for each one. Neither statement permits a repeated calibration target to count as several independent objects.
+
+\paragraph{How attenuation changes the budget.}
+For gains $d_i=i^{-\beta}$, $0\le\beta<1/2$, the reusable budget needed for bounded risk is of order $p^{2-2\beta}$, and the single-query budget is of order $p^{1-2\beta}$. At $\beta=1/2$ these thresholds become $p$ and $\log p$ respectively. For $\beta>1/2$, bounded risk is already possible at zero budget. To verify the thresholds, let $s=\sum_i d_i$. Cauchy--Schwarz gives $V_D(N)\ge s^2/(p+N)$; taking $x_i=Nd_i/s$ gives $V_D(N)\le s^2/N$ for $N>0$. These bounds suffice below $\beta=1/2$, where $s^2/p$ diverges. At the boundary, for $1\le N<p$ use $(1+x_i)^{-1}\ge1-x_i$ on $i>N$ to obtain
+\[
+ V_D(N)\ge\sum_{i=N+1}^p i^{-1}-N/(N+1).
+\]
+This quantity diverges if $N=o(p)$. The single-query assertions follow from $\mathbb E\norm{DW}\asymp(\sum_i d_i^2)^{1/2}$, and $V_D(0)=\sum_i d_i^2$ gives the last case.
+
+\paragraph{An implementable allocation.}
+For positive $N$ and some nonzero gain, the solution of \eqref{eq:water} is $x_i=(d_i/\tau-1)_+$ with $\tau$ chosen to exhaust the budget, by the first-order conditions. Proportional allocation to all gains omits the threshold for weak directions. One can also minimize $\mathbb E R^2$ \emph{exactly within the eigenaxis catalogue} even with known mode-specific reliabilities. For $n$ past observations of axis $i$, put
+\[
+ v_i(n)=\mathbb E[(1+c_i^2\chi^2_n)^{-1}]
+       =\int_0^\infty e^{-t}(1+2c_i^2 t)^{-n/2}\,dt .
+\]
+Tonelli's theorem and the Laplace transform of a chi-square give the equality. The expected squared modulus is $\sum_i d_i^2 v_i(n_i)$. Each extra object's benefit $d_i^2[v_i(n_i)-v_i(n_i+1)]$ is nonnegative and decreases in $n_i$, directly under the integral. The separable resource allocation principle \cite{greedy} applies to these particular chi-square returns. Choosing the largest available benefit at each step takes the largest $N$ benefits subject to their prefix order, and hence gives an optimal integer allocation. With unit reliabilities it inherits the constant-factor length guarantee against every reusable oblique design from Theorem~\ref{thm:budget}. Exact optimality here applies to the squared modulus in the catalogue; the length guarantee against unrestricted designs is up to constants. This distinguishes the criterion from linear-regression excess prediction loss under limited attribute observation \cite{budgetlearn} and relates \eqref{eq:water} to trace criteria in Bayesian design \cite{aoptimal}.
+
+\begin{corollary}[One archive for a known batch]\label{cor:batch}
+Suppose the visible measurements for $m$ queries arrive together, before a single archive of $N$ pairs is acquired. Let $G$ have rows $g_h^\top$ and let $\sigma_i$ be the singular values of $G/\sqrt m$, padded with zeros. The best root mean square of conditional minimax lengths over the batch and calibration scores satisfies
+\[
+ \inf_{\rm design}\left\{\frac1m\sum_{h=1}^m
+ \mathbb E_S\,\ell(A,g_h)^2\right\}^{1/2}
+ \asymp_\alpha 1+\sqrt{V_{\diag(\sigma)}(N)} .
+\]
+The design may use all the visible queries and has no access to their targets. The discrete allocation above, in the right singular basis of the batch with weights $\sigma_i^2$, attains this order. For $m\le p$ orthogonal query vectors of norm $\sqrt p$, the squared-modulus criterion in the relaxation equals $p/(1+N/m)$. Thus the budget needed for bounded RMS length grows as $mp$ in this example.
+\end{corollary}
+\begin{proof}
+The sum of squared moduli divided by $m$ is $\tr(C K^{-1})$ with $C=G^\top G/m$. For each row Jensen's inequality as in Theorem~\ref{thm:budget}, followed by squaring, gives $\mathbb E_S R_h^2\ge g_h^\top(I+J)^{-1}g_h$. Diagonalize $C$, use the diagonal inverse bound in that basis, and apply $\tr J\le N$. Rounding the relaxed allocation and applying the chi-square bound in the same basis achieves the matching upper order. The orthogonal example has $m$ equal nonzero eigenvalues $p/m$. The criteria average individually honest lengths; they specify no joint event of simultaneous coverage.
+\end{proof}
+The trace criterion for a known batch also occurs in transductive experimental design. Yu, Bi and Tresp minimize predictive variance on specified test inputs in regularized regression \cite{transductive}. Here its connection to honest interval length follows from the lower and upper bounds in Theorem~\ref{thm:archive}; the chosen instrument fixes a direction, while the scalar score realized on each new object supplies random information along it. Repeated or nearly collinear queries can share calibration, even when their number is large. Classical design for a specified linear functional also orients measurements toward the target \cite{elfving}; here the spectrum of the observed batch determines the robust prediction cost while calibration variances remain unidentified.
