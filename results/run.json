@@ -1,0 +1,22 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "numpy": "2.2.6",
+  "scipy": "1.15.3",
+  "seed": 20261123,
+  "input_sha256": "c146576171f75335fe72388c9289350bcd5450ff882f8a525a6056232547e386",
+  "pid": 35044,
+  "command": "python study.py",
+  "sha256": {
+    "study.py": "d41e26cd92077fc9e06288cd5689a9efddee132aa6c304f38b7dba9c825f4f04",
+    "intervals.py": "c1aab2c958a08ebfe5077a75da9c461c3aad3950fd2e479c78a198fefed365c4",
+    "test_intervals.py": "e65581f1e28333dada5f23a4d4eda2da5ee4afd832b149218201424aa83b2ced",
+    "requirements.txt": "4b81b6b6a549771115529e6900b9589835cdbfff0c6acf179aef53d283b744d5",
+    "protocol.md": "90a816041866df3898fce2390084d2b932b8016e51c5e07d1624483b0eba7329"
+  },
+  "results": {
+    "conditional.csv": "9a8e5b63e962feb8f7b5e4b8d1f81e9e4d7a6345b2c5c8fd159d9fc26ad9d9fa",
+    "operators.csv": "ac08ae8e62bb3971da6b03ddf51a183f62cc769e701f7ff1ba04f05faee802d6",
+    "paired.csv": "50407d814a10dbe97f2a0cdc6f4046494341b6d3d45ad57fc57ca1dbad3144d9"
+  }
+}
