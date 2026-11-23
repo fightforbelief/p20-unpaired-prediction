@@ -1,0 +1,31 @@
+{
+  "python": "3.12.10",
+  "numpy": "2.2.6",
+  "scipy": "1.15.3",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "seed": 20261124,
+  "pid": 19692,
+  "command": "python finite_study.py",
+  "data": {
+    "Indian_pines": "ec2f8808710919d566f70f0d4aa885aae1ddfd42b734aba71c5e12ca65450939",
+    "Salinas": "5ec1c0d22f56d18ecd336f8e35735863c0f160682e04e0c18ef3f89a3334d87d"
+  },
+  "kernel_archive": "c146576171f75335fe72388c9289350bcd5450ff882f8a525a6056232547e386",
+  "source": {
+    "finite_protocol.md": "e65153208be5dd0d91003081447ed11503aa3cdf62c73e260b6f44e709baeb2e",
+    "finite_design.py": "a44df1a9855cfa30983ad05a058ceeeed4342b12438caf91204564f0a49c2679",
+    "finite_study.py": "95e42b7e51634fe06fe9fc6d85207b49fddea8cce9b2f3ab0bd029c891c26841",
+    "test_finite.py": "1498299ce6e74b5c33abb392ab8606fa3351b02363f4b5bd52bde4514ef16f21",
+    "study.py": "d41e26cd92077fc9e06288cd5689a9efddee132aa6c304f38b7dba9c825f4f04",
+    "intervals.py": "c1aab2c958a08ebfe5077a75da9c461c3aad3950fd2e479c78a198fefed365c4",
+    "requirements.txt": "4b81b6b6a549771115529e6900b9589835cdbfff0c6acf179aef53d283b744d5",
+    "replay.py": "3fdf8fd79dbfa6358b3c3f4a99dddc70317b05e1f12b0785ecb41ae3f66a65e5"
+  },
+  "results": {
+    "batches.csv": "e0f2de285fe1aeaeb22affc6debb338dabdf9ea1a87fbf2e6ebc09e26a32a4f2",
+    "camera.csv": "a527b84cfe470ab518e0762ee0435e0f3d57890728f941fa314cac5c6d3549dc",
+    "dimension.csv": "69f7ee23b98f813a76c7bef409a3d288c18288c4a8d222c03aca0b43a6c6b051",
+    "scenes.csv": "a46e8b201d1c3a3e5c96508280fc136b21f1ca08adbe8cc3b85c32ea1a8e105a",
+    "tail_comparison.csv": "3aa7ead9e6b1866756670bf62d3e01e222ed0f578e1fc0fc120de33cab2cd0ac"
+  }
+}
